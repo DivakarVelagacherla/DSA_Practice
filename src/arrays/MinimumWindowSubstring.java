@@ -1,11 +1,58 @@
 package arrays;
 
+import java.util.HashMap;
+
 public class MinimumWindowSubstring {
 
     public static String minWindow(String s, String t) {
         // Your code here
 
-        return "";
+        if(s.length() < t.length()) return "";
+
+        HashMap<Character, Integer> targetFreq = new HashMap<>();
+        HashMap<Character, Integer> windowFreq = new HashMap<>();
+
+        for(char c : t.toCharArray()){
+            targetFreq.put(c, targetFreq.getOrDefault(c, 0) + 1);
+        }
+
+        int requiredSize = targetFreq.size();
+        int formedSize = 0;
+        int newStart = 0;
+        int minWindowLength = Integer.MAX_VALUE;
+        int left = 0, right = 0;
+
+        while(right < s.length()){
+            windowFreq.put(s.charAt(right), windowFreq.getOrDefault(s.charAt(right), 0) + 1);
+
+            if(targetFreq.containsKey(s.charAt(right)) && windowFreq.get(s.charAt(right)).equals(targetFreq.get(s.charAt(right)))){
+                formedSize++;
+            }
+
+//            require min window so shrink when all conditions satisfy.
+            while(formedSize == requiredSize){
+
+//                valid window before shrinking
+                if(right - left + 1 < minWindowLength){
+                    minWindowLength = right - left + 1;
+                    newStart = left;
+                }
+
+                char leftChar = s.charAt(left);
+
+                windowFreq.put(leftChar, windowFreq.get(leftChar) - 1);
+                if(targetFreq.containsKey(leftChar) && windowFreq.get(leftChar) < targetFreq.get(leftChar)){
+                    formedSize--;
+                }
+
+                left++;
+            }
+
+            right++;
+        }
+
+
+        return minWindowLength == Integer.MAX_VALUE ? "" : s.substring(newStart, newStart+minWindowLength);
     }
 
     public static void main(String[] args) {
